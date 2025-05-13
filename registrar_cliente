@@ -1,0 +1,40 @@
+<?php
+include("conexion.php");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre = $_POST["nombre"];
+    $apellido = $_POST["apellido"];
+    $direccion = $_POST["direccion"];
+    $correo = $_POST["correo"];
+    $telefono = $_POST["telefono"];
+
+    if (!preg_match("/^[0-9]{11}$/", $telefono)) {
+        die("Número telefónico inválido. Debe contener exactamente 11 dígitos.");
+    }
+
+    if (!preg_match("/^[\w.-]+@gmail\.com$/", $correo)) {
+        die("Correo inválido. Debe ser una dirección @gmail.com.");
+    }
+
+    $sql = "INSERT INTO clientes (nombre, apellido, direccion, correo, telefono)
+            VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $nombre, $apellido, $direccion, $correo, $telefono);
+
+    if ($stmt->execute()) {
+        echo "Cliente registrado correctamente.";
+    } else {
+        echo "Error al registrar cliente: " . $stmt->error;
+    }
+    $stmt->close();
+}
+?>
+
+<form method="post">
+    <label>Nombre:</label><input type="text" name="nombre" required><br>
+    <label>Apellido:</label><input type="text" name="apellido" required><br>
+    <label>Dirección:</label><input type="text" name="direccion"><br>
+    <label>Correo:</label><input type="email" name="correo" required><br>
+    <label>Teléfono:</label><input type="text" name="telefono" required><br>
+    <input type="submit" value="Registrar">
+</form>
